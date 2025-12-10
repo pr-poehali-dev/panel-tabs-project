@@ -1,8 +1,6 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
 import Icon from "@/components/ui/icon";
 
 interface InspectionTabProps {
@@ -16,126 +14,133 @@ interface InspectionTabProps {
 }
 
 const InspectionTab = ({ inspectionData }: InspectionTabProps) => {
+  const [cellStates, setCellStates] = useState<Array<'idle' | 'passed' | 'failed'>>(
+    Array(18).fill('idle')
+  );
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const handleStart = () => {
+    setIsRunning(true);
+    setIsPaused(false);
+    simulateInspection();
+  };
+
+  const handlePause = () => {
+    setIsPaused(true);
+    setIsRunning(false);
+  };
+
+  const handleContinue = () => {
+    setIsPaused(false);
+    setIsRunning(true);
+  };
+
+  const handleStop = () => {
+    setIsRunning(false);
+    setIsPaused(false);
+    setCellStates(Array(18).fill('idle'));
+  };
+
+  const simulateInspection = () => {
+    const newStates = [...cellStates];
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < 18) {
+        newStates[index] = Math.random() > 0.3 ? 'passed' : 'failed';
+        setCellStates([...newStates]);
+        index++;
+      } else {
+        clearInterval(interval);
+        setIsRunning(false);
+      }
+    }, 800);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card>
-        <CardHeader>
-          <CardTitle>Результаты проверки корпусов</CardTitle>
-          <CardDescription>Последние проверенные изделия</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID корпуса</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead>Дефекты</TableHead>
-                <TableHead>Время</TableHead>
-                <TableHead>Оператор</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {inspectionData.map((item) => (
-                <TableRow key={item.id} className="hover:bg-slate-50">
-                  <TableCell className="font-mono font-medium">{item.id}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={item.status === "годен" ? "default" : "destructive"}
-                      className={item.status === "годен" ? "bg-green-500" : ""}
-                    >
-                      {item.status === "годен" ? (
-                        <Icon name="CheckCircle2" size={14} className="mr-1" />
-                      ) : (
-                        <Icon name="XCircle" size={14} className="mr-1" />
-                      )}
-                      {item.status.toUpperCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {item.defects === 0 ? (
-                      <span className="text-green-600 font-medium">0</span>
-                    ) : (
-                      <span className="text-red-600 font-medium">{item.defects}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{item.timestamp}</TableCell>
-                  <TableCell>{item.operator}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      <Icon name="Eye" size={16} />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Распределение дефектов</CardTitle>
-            <CardDescription>По типам найденных дефектов</CardDescription>
+            <CardTitle>Изображение с камеры</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Трещины</span>
-                <span className="font-medium">8 (57%)</span>
-              </div>
-              <Progress value={57} className="h-3" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Сколы</span>
-                <span className="font-medium">4 (29%)</span>
-              </div>
-              <Progress value={29} className="h-3" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Деформация</span>
-                <span className="font-medium">2 (14%)</span>
-              </div>
-              <Progress value={14} className="h-3" />
+          <CardContent>
+            <div className="aspect-square bg-slate-100 rounded-lg border-2 border-slate-300 flex items-center justify-center">
+              <Icon name="Camera" size={64} className="text-slate-400" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <div className="lg:col-span-1 flex flex-col justify-center">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Результаты проверки ячеек</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-2 mb-6">
+                {cellStates.map((state, index) => (
+                  <div
+                    key={index}
+                    className={`
+                      aspect-square rounded-lg border-2 flex items-center justify-center font-bold text-lg
+                      transition-all duration-300
+                      ${state === 'idle' ? 'bg-slate-100 border-slate-300 text-slate-600' : ''}
+                      ${state === 'passed' ? 'bg-green-500 border-green-600 text-white' : ''}
+                      ${state === 'failed' ? 'bg-red-500 border-red-600 text-white' : ''}
+                    `}
+                  >
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button 
+                  onClick={handleStart} 
+                  disabled={isRunning || isPaused}
+                  className="flex-1 min-w-[100px]"
+                >
+                  <Icon name="Play" size={16} className="mr-2" />
+                  Запуск
+                </Button>
+                <Button 
+                  onClick={handlePause} 
+                  disabled={!isRunning}
+                  variant="outline"
+                  className="flex-1 min-w-[100px]"
+                >
+                  <Icon name="Pause" size={16} className="mr-2" />
+                  Пауза
+                </Button>
+                <Button 
+                  onClick={handleContinue} 
+                  disabled={!isPaused}
+                  variant="outline"
+                  className="flex-1 min-w-[100px]"
+                >
+                  <Icon name="PlayCircle" size={16} className="mr-2" />
+                  Продолжить
+                </Button>
+                <Button 
+                  onClick={handleStop}
+                  variant="destructive"
+                  className="flex-1 min-w-[100px]"
+                >
+                  <Icon name="Square" size={16} className="mr-2" />
+                  Стоп
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Производительность</CardTitle>
-            <CardDescription>Проверок в час по операторам</CardDescription>
+            <CardTitle>Обнаружение дефектов</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Icon name="User" size={20} className="text-blue-600" />
-                </div>
-                <span className="font-medium">Иванов И.И.</span>
-              </div>
-              <span className="text-2xl font-bold">52</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <Icon name="User" size={20} className="text-green-600" />
-                </div>
-                <span className="font-medium">Петров П.П.</span>
-              </div>
-              <span className="text-2xl font-bold">48</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Icon name="User" size={20} className="text-purple-600" />
-                </div>
-                <span className="font-medium">Сидоров С.С.</span>
-              </div>
-              <span className="text-2xl font-bold">45</span>
+          <CardContent>
+            <div className="aspect-square bg-slate-100 rounded-lg border-2 border-slate-300 flex items-center justify-center">
+              <Icon name="ScanSearch" size={64} className="text-slate-400" />
             </div>
           </CardContent>
         </Card>

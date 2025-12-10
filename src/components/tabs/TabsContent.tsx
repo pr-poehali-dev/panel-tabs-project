@@ -12,75 +12,65 @@ import Icon from "@/components/ui/icon";
 export const CalibrationTab = () => {
   return (
     <TabsContent value="calibration" className="space-y-6 animate-fade-in">
-      <Card>
-        <CardHeader>
-          <CardTitle>Калибровка первой ячейки</CardTitle>
-          <CardDescription>Настройка эталонных параметров для проверки</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="reference-id">ID эталонного образца</Label>
-                <Input id="reference-id" placeholder="Введите ID образца" className="mt-2" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Изображение с камеры</CardTitle>
+            <CardDescription>Калибровка первой ячейки</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video bg-slate-100 rounded-lg border-2 border-slate-300 flex items-center justify-center">
+              <Icon name="Camera" size={96} className="text-slate-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle>Управление ячейкой</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex flex-col items-center gap-4">
+              <Button variant="outline" size="icon" className="w-12 h-12">
+                <Icon name="ArrowUp" size={24} />
+              </Button>
+              
+              <div className="flex gap-4">
+                <Button variant="outline" size="icon" className="w-12 h-12">
+                  <Icon name="ArrowLeft" size={24} />
+                </Button>
+                <Button variant="outline" size="icon" className="w-12 h-12">
+                  <Icon name="Circle" size={20} />
+                </Button>
+                <Button variant="outline" size="icon" className="w-12 h-12">
+                  <Icon name="ArrowRight" size={24} />
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="tolerance">Допуск (мм)</Label>
-                <Input id="tolerance" type="number" placeholder="0.5" className="mt-2" />
-              </div>
-              <div>
-                <Label>Точность измерения</Label>
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Низкая</span>
-                    <span className="text-sm">Высокая</span>
-                  </div>
-                  <Slider defaultValue={[75]} max={100} step={1} className="w-full" />
-                </div>
-              </div>
+              
+              <Button variant="outline" size="icon" className="w-12 h-12">
+                <Icon name="ArrowDown" size={24} />
+              </Button>
             </div>
 
-            <div className="space-y-4">
-              <Card className="bg-slate-50 border-dashed">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                      <Icon name="Camera" size={32} className="text-primary" />
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Поместите эталонный образец в зону сканирования
-                    </p>
-                    <Button>
-                      <Icon name="Play" size={16} className="mr-2" />
-                      Начать калибровку
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Статус калибровки</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Последняя калибровка:</span>
-                    <span className="font-medium">09.12.2025 14:30</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Точность:</span>
-                    <Badge variant="default" className="bg-green-500">Отличная</Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Следующая калибровка:</span>
-                    <span className="font-medium">16.12.2025</span>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-4 pt-4 border-t">
+              <Button className="w-full">
+                <Icon name="Target" size={16} className="mr-2" />
+                Калибровать
+              </Button>
+              
+              <div>
+                <Label htmlFor="rotation-angle">Угол поворота</Label>
+                <Input 
+                  id="rotation-angle" 
+                  type="number" 
+                  placeholder="0" 
+                  className="mt-2"
+                />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </TabsContent>
   );
 };
